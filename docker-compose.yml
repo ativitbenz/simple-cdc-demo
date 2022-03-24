@@ -1,0 +1,45 @@
+version: '3.3'
+
+services:
+
+  # Cassandra 4 with the DataStax Change Agent enabled
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    volumes:
+      # Enable cdc and change agent to be loaded by providing custpom configurations
+      - ./config/cassandra.yaml:/etc/cassandra/cassandra.yaml
+      - ./config/jvm-server.options:/etc/cassandra/jvm-server.options
+      - ./cassandra-source-agent:/etc/cassandra-source-agent
+    networks:
+      - backend
+
+  # Pulsar
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    container_name: pulsar
+    volumes:
+      # Mount the folder for the DataStax Cassandra Source Connector
+      - ./cassandra-source-connector:/etc/cassandra-source-connector
+    environment:
+      PULSAR_MEM: " -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
+    command: |
+      /bin/bash -c "bin/apply-config-from-env.py conf/standalone.conf && bin/pulsar standalone"
+    networks:
+      - backend
+
+  # Pulsar dashboard for convenience
+  dashboard:
+    image: apachepulsar/pulsar-dashboard
+    container_name: dashboard
+    depends_on:
+      - pulsar
+    ports:
+      - 80:80
+    environment:
+      - SERVICE_URL=http://pulsar:8080
+    networks:
+      - backend
+    
+networks:
+  backend:
