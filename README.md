@@ -1,4 +1,4 @@
-# CDC for Cassandra using Pulsar
+# 🚨 CDC for Cassandra using Pulsar
 The goal of this project is to create a super simple sandbox to try out CDC for Cassandra using Pulsar in a near real-time manner.
 
 It consists of the following components:
