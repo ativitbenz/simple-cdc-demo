@@ -192,4 +192,4 @@
 ###########
 
 # Enable the CDC Java Agent
--javaagent:/etc/cassandra-source-agent/agent-c4-pulsar-1.0.1-all.jar=pulsarServiceUrl=pulsar://pulsar:6650
+-javaagent:/var/cassandra-source-agent/agent-c4-pulsar-1.0.1-all.jar=pulsarServiceUrl=pulsar://pulsar:6650

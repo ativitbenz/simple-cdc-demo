@@ -10,7 +10,7 @@ services:
       # Enable cdc and change agent to be loaded by providing custpom configurations
       - ./config/cassandra.yaml:/etc/cassandra/cassandra.yaml
       - ./config/jvm-server.options:/etc/cassandra/jvm-server.options
-      - ./cassandra-source-agent:/etc/cassandra-source-agent
+      - ./cassandra-source-agent:/var/cassandra-source-agent
     networks:
       - backend
 
@@ -20,7 +20,7 @@ services:
     container_name: pulsar
     volumes:
       # Mount the folder for the DataStax Cassandra Source Connector
-      - ./cassandra-source-connector:/etc/cassandra-source-connector
+      - ./cassandra-source-connector:/var/cassandra-source-connector
     environment:
       PULSAR_MEM: " -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
     command: |

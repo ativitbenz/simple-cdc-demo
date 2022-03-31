@@ -2,13 +2,13 @@
 The goal of this project is to create a super simple sandbox to try out CDC for Cassandra using Pulsar in a near real-time manner.
 
 It consists of the following components:
-- Cassandra 4.0
-- DataStax Change Agent for Cassandra
-- Pulsar
-- DataStax Cassandra Source Connector for Pulsar
+- [Cassandra 4.0](https://www.datastax.com/cassandra-4)
+- [DataStax Change Agent for Cassandra](https://github.com/datastax/cdc-apache-cassandra)
+- [Pulsar](https://pulsar.apache.org/)
+- [DataStax Cassandra Source Connector for Pulsar](https://github.com/datastax/cdc-apache-cassandra)
 
 ## 1️⃣ About CDC
-CDC for Cassandra used to be pretty complex to use until the release of the DataStax CDC implementation based on two components:
+CDC for Cassandra used to be pretty complex to use until the release of the [DataStax CDC implementation](https://github.com/datastax/cdc-apache-cassandra) based on two components:
 1. The DataStax Change Agent for Cassandra
 2. The DataStax Cassandra Source Connector for Pulsar
 
@@ -23,7 +23,7 @@ From here it is possible to send them to a sink for post processing. For instanc
 ## 2️⃣ Run the sandbox
 First start the docker containers for this sandbox: Cassandra, Pulsar and the Pulsar Dashboard:
 ```sh
-docker-compose -up
+docker-compose up
 ```
 What happens now is the following:
 
@@ -52,7 +52,7 @@ Now create a source based on the DataStax Cassandra Source Connector. This allow
 ```sh
 docker exec -it pulsar sh -c "/pulsar/bin/pulsar-admin source create \
 --name cassandra-source \
---archive /etc/cassandra-source-connector/pulsar-cassandra-source-1.0.1.nar \
+--archive /var/cassandra-source-connector/pulsar-cassandra-source-1.0.1.nar \
 --tenant public \
 --namespace default \
 --destination-topic-name public/default/data-ks1.table1 \
