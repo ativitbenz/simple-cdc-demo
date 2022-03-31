@@ -5,7 +5,7 @@ It consists of the following components:
 - [Cassandra 4.0](https://www.datastax.com/cassandra-4)
 - [DataStax Change Agent for Cassandra](https://github.com/datastax/cdc-apache-cassandra)
 - [Pulsar](https://pulsar.apache.org/)
-- [DataStax Cassandra Source Connector for Pulsar](https://github.com/datastax/cdc-apache-cassandra)
+- [DataStax Cassandra Source Connector for Pulsar (CSC)](https://github.com/datastax/cdc-apache-cassandra)
 
 ## 1️⃣ About CDC
 CDC for Cassandra used to be pretty complex to use until the release of the [DataStax CDC implementation](https://github.com/datastax/cdc-apache-cassandra) based on two components:
@@ -95,12 +95,12 @@ Now watch this space for incoming messages managed by the Source Connector.
 ## 5️⃣ Create some data in Cassandra
 In a new terminal, run:
 ```sh
-docker exec -it cassandra sh -c "cqlsh -e \
+docker exec -it cassandra sh -c "cqlsh -e \"\
 CREATE KEYSPACE ks1 WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}; \
 CREATE TABLE ks1.table1 (a int, b text, PRIMARY KEY(a)) WITH cdc=true; \
 INSERT INTO ks1.table1 (a, b) VALUES ( 1, 'one'); \
 INSERT INTO ks1.table1 (a, b) VALUES ( 2, 'two'); \
-INSERT INTO ks1.table1 (a, b) VALUES ( 3, 'three');"
+INSERT INTO ks1.table1 (a, b) VALUES ( 3, 'three');\""
 ```
 And watch the data being made available in the `public/default/data-ks1.table1` destination topic.
 
