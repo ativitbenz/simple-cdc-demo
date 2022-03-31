@@ -23,7 +23,7 @@ From here it is possible to send them to a sink for post processing. For instanc
 ## 2️⃣ Run the sandbox
 First start the docker containers for this sandbox: Cassandra, Pulsar and the Pulsar Dashboard:
 ```sh
-docker-compose up
+docker-compose up -d
 ```
 What happens now is the following:
 
@@ -46,8 +46,25 @@ cdc_enabled: true
 
 🅱️ **Pulsar** is started and ready to receive data
 
+## 3️⃣ Set up a data model in Cassandra
+Make sure that Cassandra has been started completely:
+```sh
+docker logs cassandra | grep "Startup complete"
+```
+Cassandra is started when you see a line come back like this:
+```text
+INFO  [main] 2022-03-31 08:48:07,097 CassandraDaemon.java:782 - Startup complete
+```
 
-## 3️⃣ Create a Cassandra Source in Pulsar
+Now we can set up a data model in Cassandra that is enabled for CDC:
+```sh
+docker exec -it cassandra sh -c "cqlsh -e \"\
+CREATE KEYSPACE ks1 WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}; \
+CREATE TABLE ks1.table1 (a int, b text, PRIMARY KEY(a)) WITH cdc=true\""
+```
+Here we create a keyspace named `ks1` and a table `table1` which is enabled for CDC.
+
+## 4️⃣ Create a Cassandra Source in Pulsar
 Now create a source based on the DataStax Cassandra Source Connector. This allows Pulsar to receive data from the Change Agent.
 ```sh
 docker exec -it pulsar sh -c "/pulsar/bin/pulsar-admin source create \
@@ -84,27 +101,29 @@ Topic | Value | Notes
 Origin | public/default/events-ks1.table1 | This is the topic the Change Agent on Cassandra pushed data into
 Destination | public/default/data-ks1.table1 | The Source Connector pushes deduplicated data into this topic which can them be consumed for instance by a sink
 
+To check if the source connector is up and running:
+```sh
+docker exec -it pulsar sh -c "/pulsar/bin/pulsar-admin source status --name cassandra-source"
+```
 
-## 4️⃣ Consume the data from CDC
-We want to see the output of destination topic on Pulsar. To do this, in a new terminal, run:
+## 5️⃣ Consume the data from CDC
+We want to see the output of destination topic on Pulsar. To do this run:
 ```sh
 docker exec -it pulsar sh -c "/pulsar/bin/pulsar-client consume public/default/data-ks1.table1 -s 'ks1-table1' -n 60 -r 1"
 ```
 Now watch this space for incoming messages managed by the Source Connector.
 
-## 5️⃣ Create some data in Cassandra
+## 6️⃣ Create some data in Cassandra
 In a new terminal, run:
 ```sh
 docker exec -it cassandra sh -c "cqlsh -e \"\
-CREATE KEYSPACE ks1 WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}; \
-CREATE TABLE ks1.table1 (a int, b text, PRIMARY KEY(a)) WITH cdc=true; \
 INSERT INTO ks1.table1 (a, b) VALUES ( 1, 'one'); \
 INSERT INTO ks1.table1 (a, b) VALUES ( 2, 'two'); \
 INSERT INTO ks1.table1 (a, b) VALUES ( 3, 'three');\""
 ```
 And watch the data being made available in the `public/default/data-ks1.table1` destination topic.
 
-## 6️⃣ Start dreaming of your new use-case
+## 7️⃣ Start dreaming of your new use-case
 Now that CDC is working and available in a scalable and robust way it's your turn to start dreaming of your new use case.
 
 For instance, think about crowd control based on passenger data streaming in in real-time.
